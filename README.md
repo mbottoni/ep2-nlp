@@ -23,19 +23,64 @@ being trivially easy — the fine-tuned model is compared against simple
 heuristics: the global average density, the density of just the **first** word,
 and the density of just the **last** word of each review.
 
+## Install
+
+```bash
+pip install -e ".[dev]"     # editable install + pytest/ruff
+# or just the runtime deps:
+pip install -r requirements.txt
+```
+
+## Usage
+
+The project installs a `bertimbau-probing` command:
+
+```bash
+bertimbau-probing baselines                  # naive density baselines (no GPU)
+bertimbau-probing regression                 # fine-tune the regression probe
+bertimbau-probing classification --balanced  # classifier on balanced classes
+```
+
+Common flags: `--data-path`, `--model-name`, `--samples`, `--epochs`,
+`--batch-size`. Fine-tuning needs a GPU; the baselines run anywhere.
+
+Equivalent `make` targets are provided: `make baselines`, `make regression`,
+`make classification`, `make test`, `make lint`.
+
+## Project layout
+
+```
+src/bertimbau_probing/
+├── config.py      # hyperparameters and paths (Config dataclass)
+├── vowels.py      # vowel-density target + density bands (pure Python)
+├── data.py        # load / preprocess / target / split / balance (pandas)
+├── baselines.py   # first-word / last-word / global density baselines
+├── datasets.py    # tokenizing torch Dataset + DataLoaders
+├── models.py      # BERTimbau regression and classification heads
+├── train.py       # training and prediction loops
+├── metrics.py     # RMSE / MAE / R² / Pearson, accuracy + confusion matrix
+└── cli.py         # `bertimbau-probing` entry point
+tests/             # unit tests for the torch-free modules
+notebooks/         # original exploratory notebook
+data/              # place B2W-Reviews01.csv here
+```
+
+The `vowels`, `data`, `baselines` and `metrics` modules have no deep-learning
+dependencies, so they are unit-tested in CI without installing torch.
+
 ## Data
 
 [B2W-Reviews01](https://github.com/americanas-tech/b2w-reviews01) — a corpus of
 Brazilian e-commerce product reviews (title, rating, recommendation, and a
-free-text review). Place `B2W-Reviews01.csv` under `data/`, or point the notebook
-at your own copy.
+free-text review). Place `B2W-Reviews01.csv` under `data/`, or pass
+`--data-path` to point at your own copy.
 
-## Running
+## Tests
 
-The full pipeline lives in [`playground.ipynb`](playground.ipynb): preprocessing,
-BERTimbau fine-tuning, evaluation, and the baseline comparisons. It was developed
-on Google Colab (a GPU is recommended) — update the dataset path at the top of
-the notebook before running.
+```bash
+pytest -q       # torch-free unit tests
+ruff check src tests
+```
 
 ## Stack
 
