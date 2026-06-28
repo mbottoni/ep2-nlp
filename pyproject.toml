@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bertimbau-probing"
+version = "0.1.0"
+description = "Probing BERTimbau (Portuguese BERT) for vowel density on B2W product reviews."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "torch",
+    "transformers",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[project.scripts]
+bertimbau-probing = "bertimbau_probing.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
